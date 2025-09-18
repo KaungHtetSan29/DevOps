@@ -1,4 +1,4 @@
-package imc.com;
+package com.napier.sem;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -7,8 +7,8 @@ import org.bson.Document;
 
 public class App {
     public static void main(String[] args) {
-        // Connect to MongoDB on local system (port 27000)
-        MongoClient mongoClient = new MongoClient("localhost", 27000);
+        // Connect to MongoDB container on Docker network
+        MongoClient mongoClient = new MongoClient("mongo-dbserver", 27017);
 
         // Get a database (it will be created if it doesn't exist)
         MongoDatabase database = mongoClient.getDatabase("mydb");
@@ -33,4 +33,3 @@ public class App {
         mongoClient.close();
     }
 }
-

@@ -7,29 +7,30 @@ import org.bson.Document;
 
 public class App {
     public static void main(String[] args) {
-        // Connect to MongoDB container on Docker network
-        MongoClient mongoClient = new MongoClient("mongo-dbserver", 27017);
+        // Use try-with-resources to ensure MongoClient closes properly
+        try (MongoClient mongoClient = new MongoClient("localhost", 27000)) {
+            // Get database (created automatically if it doesn’t exist)
+            MongoDatabase database = mongoClient.getDatabase("mydb");
 
-        // Get a database (it will be created if it doesn't exist)
-        MongoDatabase database = mongoClient.getDatabase("mydb");
+            // Get collection (created automatically if it doesn’t exist)
+            MongoCollection<Document> collection = database.getCollection("test");
 
-        // Get a collection from the database (created if not exist)
-        MongoCollection<Document> collection = database.getCollection("test");
+            // Create a document
+            Document doc = new Document("name", "Kevin Sim")
+                    .append("class", "Software Engineering Methods")
+                    .append("year", "2021")
+                    .append("result", new Document("CW", 95).append("EX", 85));
 
-        // Create a document to store
-        Document doc = new Document("name", "Kevin Sim")
-                .append("class", "Software Engineering Methods")
-                .append("year", "2021")
-                .append("result", new Document("CW", 95).append("EX", 85));
+            // Insert into collection
+            collection.insertOne(doc);
 
-        // Add document to collection
-        collection.insertOne(doc);
-
-        // Retrieve and print the first document in the collection
-        Document myDoc = collection.find().first();
-        System.out.println(myDoc.toJson());
-
-        // Close MongoDB connection
-        mongoClient.close();
+            // Retrieve first document
+            Document myDoc = collection.find().first();
+            if (myDoc != null) {
+                System.out.println("Inserted Document: " + myDoc.toJson());
+            } else {
+                System.out.println("No document found.");
+            }
+        }
     }
 }

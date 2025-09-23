@@ -15,8 +15,9 @@ jobs:
           java-version: '18'
           distribution: 'temurin'
 
-      - name: Compile with Maven
-        run: mvn compile
+      # Build the JAR instead of just compile
+      - name: Build JAR with Maven
+        run: mvn clean package -DskipTests
 
       - name: Build Docker Image
         run: docker build -t semimage .

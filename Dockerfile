@@ -1,4 +1,4 @@
-FROM openjdk:latest
-COPY ./target/classes/imc /tmp/imc
+FROM openjdk:18
+COPY ./target/Lab1-1.0-SNAPSHOT-jar-with-dependencies.jar /tmp
 WORKDIR /tmp
-ENTRYPOINT ["java", "imc.com.App"]
+ENTRYPOINT ["java", "-jar", "Lab1-1.0-SNAPSHOT-jar-with-dependencies.jar"]

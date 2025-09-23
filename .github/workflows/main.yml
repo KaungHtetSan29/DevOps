@@ -1,26 +1,41 @@
-name: A workflow for my Hello World App
+name: A workflow for my SEM App
 on: push
 
 jobs:
   build:
-    name: Hello world action
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+
     steps:
+      # Checkout source code
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up JDK
+      # Set up Java 18 (since your Dockerfile uses openjdk:18)
+      - name: Set up JDK 18
         uses: actions/setup-java@v2
         with:
           java-version: '18'
           distribution: 'temurin'
 
-      # Build the JAR instead of just compile
+      # Create Docker network and start MongoDB container
+      - name: Setup MongoDB
+        run: |
+          docker network create --driver bridge se-methods
+          docker pull mongo
+          docker run -d --name mongo-dbserver --network se-methods -p 27017:27017 mongo
+
+      # Build JAR with Maven (not just compile)
       - name: Build JAR with Maven
         run: mvn clean package -DskipTests
 
-      - name: Build Docker Image
-        run: docker build -t semimage .
+      # Build Docker image for your app
+      - name: Build App Image
+        run: docker build -t se_methods .
 
-      - name: Run container and show logs
-        run: docker run --rm semimage
+      # Run your app container in the same network as MongoDB
+      - name: Run App Container
+        run: docker run -d --network se-methods --name semcontainer se_methods
+
+      # Show logs from your app
+      - name: View App Logs
+        run: docker logs semcontainer

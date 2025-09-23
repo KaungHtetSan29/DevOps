@@ -1,4 +1,4 @@
-# Software Engineering Methods
+# Software Engineering Method
 
 * Master Build Status ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/KaungHtetSan29/DevOps/main.yml?branch=master)
 * Develop Branch Status ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/KaungHtetSan29/DevOps/main.yml?branch=develop)

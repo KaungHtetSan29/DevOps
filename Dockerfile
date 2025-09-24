@@ -1,4 +1,9 @@
-FROM openjdk:18
-COPY ./target/Lab1-1.0-SNAPSHOT-jar-with-dependencies.jar /tmp
+FROM mysql:latest
+
 WORKDIR /tmp
-ENTRYPOINT ["java", "-jar", "Lab1-1.0-SNAPSHOT-jar-with-dependencies.jar"]
+
+# Copy all SQL and dump files into MySQL's init folder
+COPY db/test_db/ /docker-entrypoint-initdb.d/
+
+# Set root password properly
+ENV MYSQL_ROOT_PASSWORD=example

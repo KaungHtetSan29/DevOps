@@ -86,4 +86,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           automatic_release_tag: "latest"
-          files: ./target/devops.jar
+          files: ./target/Lab1-1.0-SNAPSHOT-jar-with-dependencies.jar
+

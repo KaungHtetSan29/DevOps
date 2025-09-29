@@ -4,77 +4,51 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.globalworldpopulation</groupId>
-    <artifactId>Global_World_Population</artifactId>
-    <version>0.1.0.5</version>
+    <groupId>com.napier.sem</groupId>
+    <artifactId>alpha</artifactId>
+    <version>0.1.0.2</version>
 
     <properties>
-        <!-- ✅ Use release 18 instead of 24 -->
-        <maven.compiler.release>18</maven.compiler.release>
+        <maven.compiler.source>18</maven.compiler.source>
+        <maven.compiler.target>18</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
-        <!-- MongoDB Driver -->
+
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-sync</artifactId>
-            <version>5.6.0</version>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.6.4</version>
         </dependency>
 
-        <!-- MySQL Connector -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>9.4.0</version>
+            <version>8.0.33</version>
         </dependency>
 
-        <!-- JUnit 5 -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.13.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.13.4</version>
-            <scope>test</scope>
-        </dependency>
+
+
     </dependencies>
+
+
 
     <build>
         <plugins>
-            <!-- Jar Plugin -->
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <!-- skip building the default-jar-->
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Assembly Plugin: Build fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.7.1</version>
+                <version>3.3.0</version>
                 <configuration>
-                    <finalName>devops</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>com.globalworldpopulation.MySQL_Test</mainClass>
+                            <mainClass>com.napier.sem.App</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -86,37 +60,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- Surefire Plugin (JUnit) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-
-            <!-- JaCoCo for coverage -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 </project>
+

@@ -1,38 +1,48 @@
 package com.napier.sem;
 
 public class Employee {
-    /**
-     * Employee number
-     */
-    public int emp_no;
+    private String emp_no;
+    private String emp_name;
+    private int salary;           // added salary
+    private Employee manager;
+    private Department dept;
 
-    /**
-     * Employee's first name
-     */
-    public String first_name;
+    public Employee(String emp_no, String emp_name, Department dept, Employee manager) {
+        this.emp_no = emp_no;
+        this.emp_name = emp_name;
+        this.dept = dept;
+        this.manager = manager;
+    }
 
-    /**
-     * Employee's last name
-     */
-    public String last_name;
+    public String getEmp_no() {
+        return emp_no;
+    }
 
-    /**
-     * Employee's job title
-     */
-    public String title;
+    public String getEmp_name() {
+        return emp_name;
+    }
 
-    /**
-     * Employee's salary
-     */
-    public int salary;
+    public int getSalary() {
+        return salary;
+    }
 
-    /**
-     * Employee's current department
-     */
-    public String dept_name;
+    public void setSalary(int salary) {
+        this.salary = salary;
+    }
 
-    /**
-     * Employee's manager
-     */
-    public String manager;
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
+    }
+
+    public Department getDept() {
+        return dept;
+    }
+
+    public void setDept(Department dept) {
+        this.dept = dept;
+    }
 }

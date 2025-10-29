@@ -3,7 +3,7 @@ package com.napier.sem;
 public class Employee {
     private String emp_no;
     private String emp_name;
-    private int salary;           // added salary
+    private int salary;
     private Employee manager;
     private Department dept;
 
@@ -19,6 +19,11 @@ public class Employee {
     }
 
     public String getEmp_name() {
+        return emp_name;
+    }
+
+    // ✅ Added alias for consistency
+    public String getName() {
         return emp_name;
     }
 

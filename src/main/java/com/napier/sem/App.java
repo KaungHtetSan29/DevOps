@@ -232,20 +232,56 @@ public class App {
             return null;
         }
     }
+    public void printSalaries(ArrayList<Employee> employees)
+    {
+        // Check if employees list is null or empty
+        if (employees == null || employees.isEmpty())
+        {
+            System.out.println("No employees to display.");
+            return;
+        }
 
-    /**
-     * Print employees with simple formatting.
-     */
-    public void printSalaries(ArrayList<Employee> employees) {
-        System.out.println(String.format("%-10s %-25s %-15s", "Emp No", "Name", "Department"));
-        for (Employee emp : employees) {
+        // Print header
+        System.out.println(String.format("%-10s %-25s %-20s %-10s", "Emp No", "Name", "Department", "Salary"));
+
+        // Loop over all employees in the list
+        for (Employee emp : employees)
+        {
+            if (emp == null)
+                continue;
+
             String deptName = (emp.getDept() != null) ? emp.getDept().getDept_name() : "N/A";
-            System.out.println(String.format("%-10s %-25s %-15s",
+
+            // Format and print employee details
+            String empString = String.format("%-10s %-25s %-20s %-10d",
                     emp.getEmp_no(),
                     emp.getEmp_name(),
-                    deptName));
+                    deptName,
+                    emp.getSalary());
+
+            System.out.println(empString);
         }
     }
+
+    public void displayEmployee(Employee emp)
+    {
+        if (emp == null)
+        {
+            System.out.println("No employee information provided.");
+            return;
+        }
+
+        System.out.println(
+                String.format(
+                        "ID: %s, Name: %s, Department: %s, Salary: %d",
+                        emp.getEmp_no(),
+                        emp.getEmp_name(),  // fixed: use getEmp_name() not getName()
+                        emp.getDept() != null ? emp.getDept().getDept_name() : "N/A", // fixed: use getDept()
+                        emp.getSalary()
+                )
+        );
+    }
+
 
     public static void main(String[] args) {
         App a = new App();

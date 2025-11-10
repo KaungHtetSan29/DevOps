@@ -2,46 +2,54 @@ package com.napier.sem;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AppTest {
+public class AppTest
+{
     static App app;
 
     @BeforeAll
-    static void init() {
+    static void init()
+    {
         app = new App();
     }
 
-    // 🧩 Test 1: Employee is null
     @Test
-    void displayEmployee_NullEmployee() {
-        String output = app.displayEmployeeString(null);
-        assertEquals("No employee information provided.", output);
+    void printSalariesTestNull()
+    {
+        app.printSalaries(null);
     }
 
-
-    // 🧩 Test 2: Valid Employee with Department
     @Test
-    void displayEmployee_ValidEmployee()
+    void printSalariesTestEmpty()
     {
-        Department dept = new Department("D001", "Engineering", null);
-        Employee emp = new Employee("E001", "Kevin Chalmers", dept, null);
-        emp.setSalary(55000);
-
-        app.displayEmployee(emp);
-        // Expected: prints details for Kevin Chalmers, department Engineering
+        ArrayList<Employee> employess = new ArrayList<Employee>();
+        app.printSalaries(employess);
     }
 
-    // 🧩 Test 3: Employee with Missing Department
     @Test
-    void displayEmployee_NoDepartment()
+    void printSalariesTestContainsNull()
     {
-        Employee emp = new Employee("E002", "John Doe", null, null);
-        emp.setSalary(42000);
+        ArrayList<Employee> employess = new ArrayList<Employee>();
+        employess.add(null);
+        app.printSalaries(employess);
+    }
 
-        app.displayEmployee(emp);
-        // Expected: prints "N/A" for department instead of error
+    @Test
+    void printSalaries()
+    {
+        ArrayList<Employee> employees = new ArrayList<Employee>();
+        Employee emp = new Employee();
+        emp.emp_no = 1;
+        emp.first_name = "Kevin";
+        emp.last_name = "Chalmers";
+        emp.title = "Engineer";
+        emp.salary = 55000;
+        employees.add(emp);
+        app.printSalaries(employees);
     }
 }

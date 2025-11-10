@@ -3,14 +3,17 @@ package com.napier.sem;
 import java.sql.*;
 import java.util.ArrayList;
 
-/* Simple application to connect to a MySQL database.
- */
+/* Simple application to connect to a MySQL database and fetch employee info. */
 public class App {
-    /* Connection to MySQL database. */
     private Connection con = null;
 
-    /* Connect to the MySQL database. */
+    /* Default connect using default host/db and 10s delay */
     public void connect() {
+        connect("db:3306", 10000);
+    }
+
+    /* Connect with custom location and delay */
+    public void connect(String location, int delay) {
         try {
             // Load Database driver
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -20,30 +23,34 @@ public class App {
         }
 
         int retries = 10;
+        boolean shouldWait = false;
         for (int i = 0; i < retries; ++i) {
             System.out.println("Connecting to database...");
             try {
-                // Wait a bit for db to start
-                Thread.sleep(10000);
-                // Connect to database
-                con = DriverManager.getConnection(
-                        "jdbc:mysql://db:3306/employees?useSSL=false&allowPublicKeyRetrieval=true",
-                        "root",
-                        "example"
-                );
+                if (shouldWait) {
+                    // Wait a bit for db to start
+                    Thread.sleep(delay);
+                }
 
+                // Connect to database
+                con = DriverManager.getConnection("jdbc:mysql://" + location
+                                + "/employees?allowPublicKeyRetrieval=true&useSSL=false",
+                        "root", "example");
                 System.out.println("Successfully connected");
                 break;
             } catch (SQLException sqle) {
                 System.out.println("Failed to connect to database attempt " + i);
                 System.out.println(sqle.getMessage());
+
+                // Let's wait before attempting to reconnect
+                shouldWait = true;
             } catch (InterruptedException ie) {
                 System.out.println("Thread interrupted? Should not happen.");
             }
         }
     }
 
-    /* Disconnect from the MySQL database. */
+    /* Disconnect from the database */
     public void disconnect() {
         if (con != null) {
             try {
@@ -55,41 +62,7 @@ public class App {
         }
     }
 
-    /**
-     * Gets all the current employees and salaries.
-     * @return A list of all employees and salaries, or null if there is an error.
-     */
-    public ArrayList<Employee> getAllSalaries() {
-        try {
-            Statement stmt = con.createStatement();
-            String strSelect =
-                    "SELECT employees.emp_no, employees.first_name, employees.last_name, salaries.salary "
-                            + "FROM employees, salaries "
-                            + "WHERE employees.emp_no = salaries.emp_no AND salaries.to_date = '9999-01-01' "
-                            + "ORDER BY employees.emp_no ASC";
-
-            ResultSet rset = stmt.executeQuery(strSelect);
-            ArrayList<Employee> employees = new ArrayList<>();
-
-            while (rset.next()) {
-                String empId = rset.getString("employees.emp_no");
-                String empName = rset.getString("employees.first_name") + " " + rset.getString("employees.last_name");
-
-                Employee emp = new Employee(empId, empName, null, null);
-                // Salary could be added to Employee if your class has a salary field.
-                employees.add(emp);
-            }
-            return employees;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("Failed to get salary details");
-            return null;
-        }
-    }
-
-    /**
-     * Get a Department object by its name.
-     */
+    /* Get a Department object by name */
     public Department getDepartment(String dept_name) {
         try {
             Statement stmt = con.createStatement();
@@ -112,25 +85,20 @@ public class App {
 
                 String managerId = rset.getString("emp_no");
                 String managerName = rset.getString("emp_name");
-
                 if (managerId != null) {
                     Employee manager = new Employee(managerId, managerName, dept, null);
                     dept.setManager(manager);
                 }
                 return dept;
-            } else {
-                return null;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Failed to get department details");
-            return null;
         }
+        return null;
     }
 
-    /**
-     * Get an Employee object by employee number.
-     */
+    /* Get an Employee by ID */
     public Employee getEmployee(int ID) {
         try {
             Statement stmt = con.createStatement();
@@ -170,19 +138,15 @@ public class App {
                         dept,
                         manager
                 );
-            } else {
-                return null;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Failed to get employee details");
-            return null;
         }
+        return null;
     }
 
-    /**
-     * Get an Employee object by first and last name.
-     */
+    /* Get an Employee by first and last name */
     public Employee getEmployee(String firstName, String lastName) {
         try {
             Statement stmt = con.createStatement();
@@ -223,95 +187,101 @@ public class App {
                         dept,
                         manager
                 );
-            } else {
-                return null;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Failed to get employee details");
-            return null;
         }
+        return null;
     }
-    public void printSalaries(ArrayList<Employee> employees)
-    {
-        // Check if employees list is null or empty
-        if (employees == null || employees.isEmpty())
-        {
+
+    /* Get all employees with salaries in a given department */
+    public ArrayList<Employee> getSalariesByDepartment(Department dept) {
+        if (dept == null) return null;
+
+        ArrayList<Employee> employees = new ArrayList<>();
+        try {
+            Statement stmt = con.createStatement();
+            String strSelect =
+                    "SELECT e.emp_no, CONCAT(e.first_name, ' ', e.last_name) AS emp_name, s.salary " +
+                            "FROM employees e " +
+                            "JOIN dept_emp de ON e.emp_no = de.emp_no " +
+                            "JOIN salaries s ON e.emp_no = s.emp_no " +
+                            "WHERE de.dept_no = '" + dept.getDept_no() + "' " +
+                            "AND de.to_date = '9999-01-01' " +
+                            "AND s.to_date = '9999-01-01' " +
+                            "ORDER BY e.emp_no ASC";
+
+            ResultSet rset = stmt.executeQuery(strSelect);
+            while (rset.next()) {
+                String empId = rset.getString("emp_no");
+                String empName = rset.getString("emp_name");
+                int salary = rset.getInt("salary");
+
+                Employee emp = new Employee(empId, empName, dept, null);
+                emp.setSalary(salary); // assuming Employee class has setSalary()
+                employees.add(emp);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("Failed to get salaries by department");
+        }
+        return employees;
+    }
+
+    /* Print salaries nicely */
+    public void printSalaries(ArrayList<Employee> employees) {
+        if (employees == null || employees.isEmpty()) {
             System.out.println("No employees to display.");
             return;
         }
 
-        // Print header
         System.out.println(String.format("%-10s %-25s %-20s %-10s", "Emp No", "Name", "Department", "Salary"));
-
-        // Loop over all employees in the list
-        for (Employee emp : employees)
-        {
-            if (emp == null)
-                continue;
-
+        for (Employee emp : employees) {
+            if (emp == null) continue;
             String deptName = (emp.getDept() != null) ? emp.getDept().getDept_name() : "N/A";
-
-            // Format and print employee details
             String empString = String.format("%-10s %-25s %-20s %-10d",
                     emp.getEmp_no(),
                     emp.getEmp_name(),
                     deptName,
                     emp.getSalary());
-
             System.out.println(empString);
         }
     }
 
-    public void displayEmployee(Employee emp)
-    {
-        if (emp == null)
-        {
-            System.out.println("No employee information provided.");
-            return;
-        }
-
-        System.out.println(
-                String.format(
-                        "ID: %s, Name: %s, Department: %s, Salary: %d",
-                        emp.getEmp_no(),
-                        emp.getEmp_name(),  // fixed: use getEmp_name() not getName()
-                        emp.getDept() != null ? emp.getDept().getDept_name() : "N/A", // fixed: use getDept()
-                        emp.getSalary()
-                )
-        );
+    public String displayEmployeeString(Employee emp) {
+        if (emp == null) return "No employee information provided.";
+        return String.format("ID: %s, Name: %s, Department: %s, Salary: %d",
+                emp.getEmp_no(),
+                emp.getEmp_name(),
+                emp.getDept() != null ? emp.getDept().getDept_name() : "N/A",
+                emp.getSalary());
     }
 
 
+
+    public void displayEmployee(Employee emp) {
+        System.out.println(displayEmployeeString(emp));
+    }
+
+    /* Main method with command-line args support */
     public static void main(String[] args) {
         App a = new App();
-        a.connect();
 
-        // --- Test getDepartment ---
-        Department sales = a.getDepartment("Sales");
-        if (sales != null) {
-            System.out.println("Department: " + sales.getDept_name());
-            if (sales.getManager() != null) {
-                System.out.println("Manager: " + sales.getManager().getEmp_name());
-            }
+        if(args.length < 1){
+            a.connect("localhost:33060", 30000);
+        }else{
+            a.connect(args[0], Integer.parseInt(args[1]));
         }
 
-        // --- Test getEmployee by ID ---
-        Employee e1 = a.getEmployee(10001);
-        if (e1 != null) {
-            System.out.println("Employee by ID: " + e1.getEmp_name()
-                    + " Dept: " + (e1.getDept() != null ? e1.getDept().getDept_name() : "N/A")
-                    + " Manager: " + (e1.getManager() != null ? e1.getManager().getEmp_name() : "N/A"));
-        }
+        Department dept = a.getDepartment("Development");
+        ArrayList<Employee> employees = a.getSalariesByDepartment(dept);
 
-        // --- Test getEmployee by Name ---
-        Employee e2 = a.getEmployee("Georgi", "Facello");
-        if (e2 != null) {
-            System.out.println("Employee by Name: " + e2.getEmp_name()
-                    + " Dept: " + (e2.getDept() != null ? e2.getDept().getDept_name() : "N/A")
-                    + " Manager: " + (e2.getManager() != null ? e2.getManager().getEmp_name() : "N/A"));
-        }
 
+        // Print salary report
+        a.printSalaries(employees);
+
+        // Disconnect from database
         a.disconnect();
     }
 }

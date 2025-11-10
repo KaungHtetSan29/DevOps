@@ -16,12 +16,11 @@ class AppTest {
 
     // 🧩 Test 1: Employee is null
     @Test
-    void displayEmployee_NullEmployee()
-    {
-        app.displayEmployee(null);
-        // Expected: should print "No employee information provided."
-        // (No crash or exception)
+    void displayEmployee_NullEmployee() {
+        String output = app.displayEmployeeString(null);
+        assertEquals("No employee information provided.", output);
     }
+
 
     // 🧩 Test 2: Valid Employee with Department
     @Test

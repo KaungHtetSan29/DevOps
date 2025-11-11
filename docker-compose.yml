@@ -13,16 +13,3 @@ services:
     ports:
       - "33060:3306"
 
-#lab 7
-#version: '3'
-#services:
-#  # Application Dockerfile is in the current folder
-#  app:
-#    build: .
-#
-#  # Database service (Dockerfile in db/ folder)
-#  db:
-#    build: db/.
-#    restart: always
-#    ports:
-#      - "33060:3306"

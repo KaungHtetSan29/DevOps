@@ -20,29 +20,34 @@ public class App {
         try {
             // Load Database driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             System.out.println("Could not load SQL driver");
             System.exit(-1);
         }
 
-        int retries = 15;
+        int retries = 10;
+        boolean shouldWait = false;
         for (int i = 0; i < retries; ++i) {
             System.out.println("Connecting to database...");
             try {
-                // Wait a bit for db to start
-                Thread.sleep(10000);
+                if (shouldWait) {
+                    // Wait a bit for db to start
+                    Thread.sleep(delay);
+                }
+
                 // Connect to database
-                //con = DriverManager.getConnection("jdbc:mysql://db:3306/employees?useSSL=false&allowPublicKeyRetrieval=true", "root", "example");
-                con = DriverManager.getConnection("jdbc:mysql://" + location + "/employees?useSSL=false&allowPublicKeyRetrieval=true", "root", "example");
+                con = DriverManager.getConnection("jdbc:mysql://" + location
+                                + "/employees?allowPublicKeyRetrieval=true&useSSL=false",
+                        "root", "example");
                 System.out.println("Successfully connected");
                 break;
-            }
-            catch (SQLException sqle) {
-                System.out.println("Failed to connect to database attempt " + Integer.toString(i));
+            } catch (SQLException sqle) {
+                System.out.println("Failed to connect to database attempt " + i);
                 System.out.println(sqle.getMessage());
-            }
-            catch (InterruptedException ie) {
+
+                // Let's wait before attempting to reconnect
+                shouldWait = true;
+            } catch (InterruptedException ie) {
                 System.out.println("Thread interrupted? Should not happen.");
             }
         }
@@ -333,13 +338,31 @@ public class App {
 
     public static void main(String[] args) {
         // Create new Application
-        App a = new App();
+      /*  App a = new App();
 
         if(args.length < 1){
             a.connect("localhost:33060", 30000);
         }else{
             a.connect("db:3306", 10000);
+        }*/
+        //=================
+        App a = new App();
+
+        if (args.length < 1) {
+            a.connect("localhost:33060", 10000);
+        } else {
+            a.connect(args[0], Integer.parseInt(args[1]));
         }
+
+        Department dept = a.getDepartment("Development");
+        ArrayList<Employee> employees = a.getSalariesByDepartment(dept);
+
+
+        // Print salary report
+        a.printSalaries(employees);
+
+        // Disconnect from database
+        a.disconnect();
 
         // Get Employee
         //Employee emp = a.getEmployee(255530);
@@ -382,8 +405,8 @@ public class App {
 //        // Print salary report
 //        a.printSalaries(employees);
 
-        ArrayList<Employee> employees = a.getSalariesByRole("Manager");
-        a.outputEmployees(employees, "ManagerSalaries.md");
+        ArrayList<Employee> employees2 = a.getSalariesByRole("Manager");
+        a.outputEmployees(employees2, "ManagerSalaries.md");
 
         // Disconnect from database
         a.disconnect();

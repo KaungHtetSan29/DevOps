@@ -84,7 +84,7 @@ jobs:
           files: |
             ./target/*.jar
       - name: Start containers
-        run: docker compose -p DevOps up -d
+        run: docker compose -p devops up -d
       - name: Run tests (container stays alive)
         run: docker compose -p devops up -d app
       - name: Copy Output
